@@ -5,6 +5,7 @@ class UserBase(BaseModel):
     email: str
 
 class UserCreate(UserBase):
+    username: str
     password: str
 
 class UserResponse(UserBase):
@@ -12,3 +13,4 @@ class UserResponse(UserBase):
 
     class Config:
         orm_mode = True
+
