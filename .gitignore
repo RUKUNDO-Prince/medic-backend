@@ -18,3 +18,7 @@ pip-wheel-metadata/
 # IDE folders (for editors like VSCode or PyCharm)
 .vscode/
 .idea/
+
+# Logs
+logs/
+*.log
