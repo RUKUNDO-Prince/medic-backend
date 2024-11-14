@@ -1,0 +1,20 @@
+# Python virtual environment folders
+venv/
+.env/
+.venv/
+
+# Python package files
+__pycache__/
+*.py[cod]
+
+# Configuration for environments
+*.env
+
+# Dependency files
+pip-wheel-metadata/
+*.egg-info/
+*.dist-info/
+
+# IDE folders (for editors like VSCode or PyCharm)
+.vscode/
+.idea/

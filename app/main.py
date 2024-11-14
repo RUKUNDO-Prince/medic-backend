@@ -1,19 +1,25 @@
 from fastapi import FastAPI
-from app.database import engine, Base
-from app.routes import auth, users, inventory  # Import your route modules here
+from fastapi.middleware.cors import CORSMiddleware
+from app.routes.users import router as users_router
+from app.routes.auth import router as auth_router
+from app.routes.inventory import router as inventory_router
 
-# Initialize the FastAPI app
 app = FastAPI()
 
-# Create all tables (for development/testing - not recommended for production)
-Base.metadata.create_all(bind=engine)
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Include your routes
-app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-app.include_router(users.router, prefix="/users", tags=["Users"])
-app.include_router(inventory.router, prefix="/inventory", tags=["Inventory"])
+# Include routers with explicit names
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(users_router, prefix="/users", tags=["Users"])
+app.include_router(inventory_router, prefix="/inventory", tags=["Inventory"])
 
-# Root endpoint
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to the Medical Management System API"}
+async def root():
+    return {"message": "Welcome to the Medical Inventory API"}
