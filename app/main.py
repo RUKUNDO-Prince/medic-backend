@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.utils.auth import get_current_user
 from app.routes.users import router as users_router
 from app.routes.auth import router as auth_router
 from app.routes.inventory import router as inventory_router
-from app.utils.logger import setup_logger
-
-# Setup logger
-logger = setup_logger(__name__)
 
 app = FastAPI()
 
@@ -22,9 +21,33 @@ app.add_middleware(
 # Middleware to log requests
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f"Request: {request.method} {request.url}")
+    # Get database session
+    db = next(get_db())
+    logger = DatabaseLogger(db)
+    
+    # Get client IP
+    ip_address = request.client.host
+    
+    # Log request
+    logger.info(
+        f"Incoming request",
+        method=request.method,
+        path=str(request.url.path),
+        ip_address=ip_address
+    )
+    
+    # Process request
     response = await call_next(request)
-    logger.info(f"Response Status: {response.status_code}")
+    
+    # Log response
+    logger.info(
+        f"Request completed",
+        method=request.method,
+        path=str(request.url.path),
+        status_code=response.status_code,
+        ip_address=ip_address
+    )
+    
     return response
 
 # Include routers
@@ -33,6 +56,7 @@ app.include_router(users_router, prefix="/users", tags=["Users"])
 app.include_router(inventory_router, prefix="/inventory", tags=["Inventory"])
 
 @app.get("/")
-async def root():
+async def root(db: Session = Depends(get_db)):
+    logger = DatabaseLogger(db)
     logger.info("Root endpoint accessed")
     return {"message": "Welcome to the Medical Inventory API"}
